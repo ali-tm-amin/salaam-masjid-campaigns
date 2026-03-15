@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Created! - Salaam Masjid</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0d5c36 0%, #22b068 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 580px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0d5c36, #22b068);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header .icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .message {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.8;
+            margin-bottom: 32px;
+        }
+
+        .info-box {
+            background: #f2faf6;
+            border: 2px solid #a8dfc0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .info-box h2 {
+            font-size: 18px;
+            color: #0d5c36;
+            margin-bottom: 12px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .cta-button {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #0d5c36, #22b068);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 100px;
+            font-size: 18px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(13, 92, 54, 0.3);
+        }
+
+        .secondary-text {
+            font-size: 13px;
+            color: #999;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .footer {
+            background: #0d5c36;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 20px 40px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .benefits {
+            list-style: none;
+            padding: 0;
+        }
+
+        .benefits li {
+            padding: 8px 0 8px 32px;
+            position: relative;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .benefits li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #22b068;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 26px;
+            }
+
+            .content {
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon">🎉</div>
+            <h1>Masha'Allah!</h1>
+            <p>Your campaign is live on LaunchGood</p>
+        </div>
+
+        <div class="content">
+            <p class="message">
+                <strong>Congratulations!</strong> You've successfully created your fundraising campaign for the Salaam Masjid extension.
+            </p>
+
+            <div class="info-box">
+                <h2>📌 One More Step - Mark Your Campaign Complete</h2>
+                <p>
+                    To help us track your campaign and stop sending you reminders, please take 10 seconds to mark your campaign as complete:
+                </p>
+                <ul class="benefits">
+                    <li>No more reminder emails</li>
+                    <li>Your campaign gets tracked in our system</li>
+                    <li>We can better support your fundraising</li>
+                </ul>
+            </div>
+
+            <a href="/campaign-complete.html" class="cta-button" id="completeButton">
+                Mark My Campaign Complete
+            </a>
+
+            <p class="secondary-text">
+                This helps us keep our records organized and ensures you only receive relevant updates.
+            </p>
+        </div>
+
+        <div class="footer">
+            Salaam Masjid Kempston — May Allah bless your fundraising efforts
+        </div>
+    </div>
+
+    <script>
+        // Pre-fill email from URL parameter if provided
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+
+        if (email) {
+            const button = document.getElementById('completeButton');
+            button.href = `/campaign-complete.html?email=${encodeURIComponent(email)}`;
+        }
+    </script>
+</body>
+</html>

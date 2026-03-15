@@ -295,8 +295,16 @@
                 <p>
                     JazakAllahu Khayran! We've received your registration.<br><br>
                     <strong>Redirecting you to LaunchGood to create your campaign...</strong><br><br>
-                    If you don't complete it within 24 hours, we'll send you a gentle reminder.
                 </p>
+                <div style="background: #f2faf6; border: 1px solid #a8dfc0; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: left;">
+                    <p style="font-size: 14px; color: #0d5c36; font-weight: 600; margin: 0 0 8px;">📌 Important - After Creating Your Campaign:</p>
+                    <p style="font-size: 13px; color: #555; margin: 0;">
+                        Come back here to mark it complete and avoid reminder emails:<br>
+                        <a href="/campaign-complete.html" id="completionLink" style="color: #0d5c36; font-weight: 600; text-decoration: none; border-bottom: 1px solid #0d5c36;">
+                            Mark Campaign Complete
+                        </a>
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -362,6 +370,10 @@
                 // Show success message briefly, then redirect to LaunchGood
                 formSection.style.display = 'none';
                 successMessage.classList.add('show');
+
+                // Pre-fill completion link with user's email
+                const completionLink = document.getElementById('completionLink');
+                completionLink.href = `/campaign-complete.html?email=${encodeURIComponent(formData.email)}`;
 
                 // Redirect to LaunchGood after 3 seconds
                 setTimeout(() => {
