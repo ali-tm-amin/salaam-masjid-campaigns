@@ -39,9 +39,10 @@ This system automates the entire campaign creation workflow:
 | File | Purpose |
 |------|---------|
 | **README.md** | This file - quick overview |
-| **SETUP_GUIDE.md** | Step-by-step setup instructions |
-| **CAMPAIGN_TRACKING_GUIDE.md** | Complete guide on how tracking works (NEW!) |
-| **WORKFLOW_DIAGRAM.md** | Visual workflow diagrams |
+| **DEPLOYMENT.md** | Netlify deployment guide (NEW!) |
+| **docs/SETUP_GUIDE.md** | Step-by-step setup instructions |
+| **docs/CAMPAIGN_TRACKING_GUIDE.md** | Complete guide on how tracking works |
+| **docs/WORKFLOW_DIAGRAM.md** | Visual workflow diagrams |
 
 ### Archive
 
@@ -242,8 +243,9 @@ May Allah accept your efforts and bless the Salaam Masjid extension project.
 ---
 
 **Quick Links**:
-- [Setup Guide](SETUP_GUIDE.md) - Step-by-step installation
-- [Campaign Tracking Guide](CAMPAIGN_TRACKING_GUIDE.md) - How tracking works
-- [Workflow Diagram](WORKFLOW_DIAGRAM.md) - Visual workflow documentation
+- [Deployment Guide](DEPLOYMENT.md) - Deploy to Netlify
+- [Setup Guide](docs/SETUP_GUIDE.md) - Step-by-step installation
+- [Campaign Tracking Guide](docs/CAMPAIGN_TRACKING_GUIDE.md) - How tracking works
+- [Workflow Diagram](docs/WORKFLOW_DIAGRAM.md) - Visual workflow documentation
 
 **Need help?** Review the troubleshooting sections in each guide.
