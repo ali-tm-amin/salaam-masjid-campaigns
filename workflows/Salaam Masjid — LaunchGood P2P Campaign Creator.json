@@ -1,0 +1,167 @@
+{
+  "name": "Salaam Masjid — LaunchGood P2P Campaign Creator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "salaam-masjid-campaign",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "b01712d7-fb11-4a27-a580-a2a8ce866ecc",
+      "name": "Receive Form Data",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        3824,
+        2960
+      ],
+      "webhookId": "salaam-masjid-webhook-001"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst body = item.body || item;\nconst fullName  = (body.fullName || body['Full Name'] || '').trim();\nconst email     = (body.email || body['Email Address'] || '').trim();\nconst goalAmt   = parseFloat(body.goalAmt || body['Your Fundraising Goal (GBP)']) || 500;\nconst firstName = fullName.split(' ')[0] || fullName;\nconst fmtGBP = (n) => new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 0 }).format(n);\nconst campaignUrl = 'https://www.launchgood.com/create#!/create/new/basics?raising_for=community&community_id=21505';\nconst now = new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' });\nreturn [{ json: { fullName, firstName, email, goalAmt, goalFmt: fmtGBP(goalAmt), campaignUrl, submittedAt: now } }];"
+      },
+      "id": "1d5b2540-27d9-4b2a-877b-44818b769fe7",
+      "name": "Prepare Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4048,
+        2960
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Pledges",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.submittedAt }}",
+            "Full Name": "={{ $json.fullName }}",
+            "Email": "={{ $json.email }}",
+            "Goal GBP": "={{ $json.goalAmt }}",
+            "Status": "Pending"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "388d75c5-6255-4354-9ea8-f0cf46376ab4",
+      "name": "Log to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        4272,
+        2960
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "rdxRpLoz0Szp2Nw2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 24,
+        "unit": "hours"
+      },
+      "id": "889e1c7f-cb39-42ee-924a-7be5d42594ba",
+      "name": "Wait 24 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4272,
+        3168
+      ],
+      "webhookId": "wait-24h-salaam-masjid-001"
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@salaammasjid.org.uk",
+        "toEmail": "={{ $json.email }}",
+        "subject": "=Did you launch your Salaam Masjid campaign, {{ $json.firstName }}?",
+        "html": "=<!DOCTYPE html><html><head><meta charset=\"UTF-8\"/></head><body style=\"margin:0;padding:0;background:#f0f4f0;font-family:'Segoe UI',Arial,sans-serif;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding:32px 0;\"><tr><td align=\"center\"><table width=\"580\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#fff;border-radius:16px;overflow:hidden;\"><tr><td style=\"background:linear-gradient(135deg,#0d5c36,#22b068);padding:32px 40px;text-align:center;\"><h1 style=\"color:#fff;margin:0;font-size:22px;font-weight:600;\">A gentle reminder</h1><p style=\"color:rgba(255,255,255,0.8);margin:8px 0 0;font-size:14px;\">Your Salaam Masjid campaign is waiting to go live</p></td></tr><tr><td style=\"padding:32px 40px;\"><p style=\"font-size:15px;color:#333;margin:0 0 16px;\">As-salamu alaykum <strong>{{ $json.fullName }}</strong>,</p><p style=\"font-size:14px;color:#555;line-height:1.8;margin:0 0 24px;\">Yesterday you registered to raise <strong style=\"color:#0d5c36;\">{{ $json.goalFmt }}</strong> for the Salaam Masjid extension. If you did not complete your campaign yet, it only takes 2 minutes.</p><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f2faf6;border:1px solid #a8dfc0;border-radius:10px;margin-bottom:24px;\"><tr><td style=\"padding:18px 24px;\"><p style=\"font-size:13px;color:#0d5c36;font-weight:600;margin:0 0 4px;\">Your fundraising goal</p><p style=\"font-size:32px;color:#0d5c36;font-weight:700;margin:0;\">{{ $json.goalFmt }}</p><p style=\"font-size:12px;color:#888;margin:6px 0 0;\">Enter this when LaunchGood asks for your goal amount</p></td></tr></table><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin-bottom:20px;\"><tr><td align=\"center\"><a href=\"{{ $json.campaignUrl }}\" style=\"display:inline-block;background:linear-gradient(135deg,#0d5c36,#22b068);color:#fff;text-decoration:none;padding:16px 48px;border-radius:100px;font-size:16px;font-weight:700;\">Complete My Campaign</a></td></tr></table><p style=\"font-size:13px;color:#999;text-align:center;margin:0;\">Already completed it? Please ignore this. JazakAllahu Khayran.</p></td></tr><tr><td style=\"background:#0d5c36;padding:20px 40px;text-align:center;\"><p style=\"color:rgba(255,255,255,0.6);font-size:12px;margin:0;\">Salaam Masjid Kempston — May Allah bless your efforts</p></td></tr></table></td></tr></table></body></html>",
+        "options": {
+          "replyTo": "admin@salaammasjid.org.uk"
+        }
+      },
+      "id": "0080f723-04b7-44a3-9df2-df0dce65f379",
+      "name": "Send Reminder Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        4496,
+        3168
+      ],
+      "webhookId": "5abf045c-8b7f-4d88-9249-da3fa0417189"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receive Form Data": {
+      "main": [
+        [
+          {
+            "node": "Prepare Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Data": {
+      "main": [
+        [
+          {
+            "node": "Log to Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait 24 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 24 Hours": {
+      "main": [
+        [
+          {
+            "node": "Send Reminder Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "2fe20989-b8d7-4d35-b57e-d38556c63eac",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "29404d21c00e483ee830f79142e426d2c17f5f7d0ab933362f77d75688caff98"
+  },
+  "id": "29mJhSl1ET5qOz5f",
+  "tags": []
+}

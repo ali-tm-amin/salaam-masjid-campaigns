@@ -1,0 +1,428 @@
+{
+  "name": "Salaam Masjid — LaunchGood P2P Campaign Creator (Complete)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "salaam-masjid-campaign",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "b01712d7-fb11-4a27-a580-a2a8ce866ecc",
+      "name": "Receive Form Data",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        800,
+        400
+      ],
+      "webhookId": "salaam-masjid-webhook-001"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst body = item.body || item;\n\n// Extract form fields\nconst fullName = (body.fullName || body['Full Name'] || '').trim();\nconst email = (body.email || body['Email Address'] || '').trim();\nconst phone = (body.phone || body['Phone Number'] || '').trim();\nconst goalAmt = parseFloat(body.goalAmt || body['Your Fundraising Goal (GBP)']) || 500;\n\n// Generate unique ID for tracking\nconst uniqueId = `SM${Date.now()}${Math.random().toString(36).substr(2, 5).toUpperCase()}`;\n\n// Process name\nconst firstName = fullName.split(' ')[0] || fullName;\n\n// Format currency\nconst fmtGBP = (n) => new Intl.NumberFormat('en-GB', { \n  style: 'currency', \n  currency: 'GBP', \n  minimumFractionDigits: 0 \n}).format(n);\n\n// Campaign URL\nconst campaignUrl = 'https://www.launchgood.com/create#!/create/new/basics?raising_for=community&community_id=21505';\n\n// Timestamp\nconst now = new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' });\n\nreturn [{ \n  json: { \n    uniqueId,\n    fullName, \n    firstName, \n    email, \n    phone,\n    goalAmt, \n    goalFmt: fmtGBP(goalAmt), \n    campaignUrl, \n    submittedAt: now,\n    status: 'Pending'\n  } \n}];"
+      },
+      "id": "1d5b2540-27d9-4b2a-877b-44818b769fe7",
+      "name": "Prepare Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Pledges",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $json.uniqueId }}",
+            "Timestamp": "={{ $json.submittedAt }}",
+            "Full Name": "={{ $json.fullName }}",
+            "Email": "={{ $json.email }}",
+            "Phone": "={{ $json.phone }}",
+            "Goal GBP": "={{ $json.goalAmt }}",
+            "Status": "={{ $json.status }}",
+            "Campaign URL": ""
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "388d75c5-6255-4354-9ea8-f0cf46376ab4",
+      "name": "Log to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1240,
+        400
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "rdxRpLoz0Szp2Nw2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 24,
+        "unit": "hours"
+      },
+      "id": "889e1c7f-cb39-42ee-924a-7be5d42594ba",
+      "name": "Wait 24 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1460,
+        400
+      ],
+      "webhookId": "wait-24h-salaam-masjid-001"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Pledges",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "ID",
+              "lookupValue": "={{ $json.uniqueId }}"
+            }
+          ]
+        },
+        "options": {
+          "returnAllMatches": false
+        }
+      },
+      "id": "7a3b4c5d-6e7f-8g9h-0i1j-2k3l4m5n6o7p",
+      "name": "Check Campaign Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1680,
+        400
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "rdxRpLoz0Szp2Nw2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "campaign-status-check",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Pending",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "8b4c5d6e-7f8g-9h0i-1j2k-3l4m5n6o7p8q",
+      "name": "IF Campaign Not Created",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1900,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@salaammasjid.org.uk",
+        "toEmail": "={{ $json.Email }}",
+        "subject": "=Did you launch your Salaam Masjid campaign, {{ $json['Full Name'].split(' ')[0] }}?",
+        "html": "=<!DOCTYPE html><html><head><meta charset=\"UTF-8\"/></head><body style=\"margin:0;padding:0;background:#f0f4f0;font-family:'Segoe UI',Arial,sans-serif;\"><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding:32px 0;\"><tr><td align=\"center\"><table width=\"580\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#fff;border-radius:16px;overflow:hidden;\"><tr><td style=\"background:linear-gradient(135deg,#0d5c36,#22b068);padding:32px 40px;text-align:center;\"><h1 style=\"color:#fff;margin:0;font-size:22px;font-weight:600;\">A gentle reminder</h1><p style=\"color:rgba(255,255,255,0.8);margin:8px 0 0;font-size:14px;\">Your Salaam Masjid campaign is waiting to go live</p></td></tr><tr><td style=\"padding:32px 40px;\"><p style=\"font-size:15px;color:#333;margin:0 0 16px;\">As-salamu alaykum <strong>{{ $json['Full Name'] }}</strong>,</p><p style=\"font-size:14px;color:#555;line-height:1.8;margin:0 0 24px;\">Yesterday you registered to raise <strong style=\"color:#0d5c36;\">£{{ $json['Goal GBP'] }}</strong> for the Salaam Masjid extension. If you did not complete your campaign yet, it only takes 2 minutes.</p><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f2faf6;border:1px solid #a8dfc0;border-radius:10px;margin-bottom:24px;\"><tr><td style=\"padding:18px 24px;\"><p style=\"font-size:13px;color:#0d5c36;font-weight:600;margin:0 0 4px;\">Your fundraising goal</p><p style=\"font-size:32px;color:#0d5c36;font-weight:700;margin:0;\">£{{ $json['Goal GBP'] }}</p><p style=\"font-size:12px;color:#888;margin:6px 0 0;\">Enter this when LaunchGood asks for your goal amount</p></td></tr></table><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin-bottom:20px;\"><tr><td align=\"center\"><a href=\"https://www.launchgood.com/create#!/create/new/basics?raising_for=community&community_id=21505\" style=\"display:inline-block;background:linear-gradient(135deg,#0d5c36,#22b068);color:#fff;text-decoration:none;padding:16px 48px;border-radius:100px;font-size:16px;font-weight:700;\">Complete My Campaign</a></td></tr></table><p style=\"font-size:13px;color:#999;text-align:center;margin:0;\">Already completed it? <a href=\"https://your-website.com/campaign-complete.html?email={{ $json['Email'] }}\" style=\"color:#0d5c36;text-decoration:none;font-weight:600;\">Click here</a> to update your status.</p></td></tr><tr><td style=\"background:#0d5c36;padding:20px 40px;text-align:center;\"><p style=\"color:rgba(255,255,255,0.6);font-size:12px;margin:0;\">Salaam Masjid Kempston — May Allah bless your efforts</p></td></tr></table></td></tr></table></body></html>",
+        "options": {
+          "replyTo": "admin@salaammasjid.org.uk"
+        }
+      },
+      "id": "0080f723-04b7-44a3-9df2-df0dce65f379",
+      "name": "Send Reminder Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2120,
+        300
+      ],
+      "webhookId": "5abf045c-8b7f-4d88-9249-da3fa0417189"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Pledges",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "ID",
+              "lookupValue": "={{ $json.ID }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Reminded"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "9c5d6e7f-8g9h-0i1j-2k3l-4m5n6o7p8q9r",
+      "name": "Update Status to Reminded",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2340,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "rdxRpLoz0Szp2Nw2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "campaign-completed",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "a1b2c3d4-e5f6-7g8h-9i0j-1k2l3m4n5o6p",
+      "name": "Campaign Completed Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        800,
+        700
+      ],
+      "webhookId": "campaign-completed-webhook-001"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst body = item.body || item;\n\n// Extract completion data\nconst email = (body.email || '').trim().toLowerCase();\nconst campaignUrl = (body.campaignUrl || '').trim();\n\n// Timestamp\nconst completedAt = new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' });\n\nreturn [{ \n  json: { \n    email,\n    campaignUrl,\n    completedAt,\n    status: 'Completed'\n  } \n}];"
+      },
+      "id": "b2c3d4e5-f6g7-8h9i-0j1k-2l3m4n5o6p7q",
+      "name": "Process Completion Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GOOGLE_SHEET_ID_HERE"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Pledges",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Email",
+              "lookupValue": "={{ $json.email }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "={{ $json.status }}",
+            "Campaign URL": "={{ $json.campaignUrl }}",
+            "Completed At": "={{ $json.completedAt }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "c3d4e5f6-g7h8-9i0j-1k2l-3m4n5o6p7q8r",
+      "name": "Mark Campaign as Complete",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1240,
+        700
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "rdxRpLoz0Szp2Nw2",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receive Form Data": {
+      "main": [
+        [
+          {
+            "node": "Prepare Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Data": {
+      "main": [
+        [
+          {
+            "node": "Log to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Wait 24 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 24 Hours": {
+      "main": [
+        [
+          {
+            "node": "Check Campaign Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Campaign Status": {
+      "main": [
+        [
+          {
+            "node": "IF Campaign Not Created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Campaign Not Created": {
+      "main": [
+        [
+          {
+            "node": "Send Reminder Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Reminder Email": {
+      "main": [
+        [
+          {
+            "node": "Update Status to Reminded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Campaign Completed Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Completion Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Completion Data": {
+      "main": [
+        [
+          {
+            "node": "Mark Campaign as Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "complete-v1",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "29404d21c00e483ee830f79142e426d2c17f5f7d0ab933362f77d75688caff98"
+  },
+  "tags": []
+}

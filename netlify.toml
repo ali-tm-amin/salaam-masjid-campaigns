@@ -1,0 +1,34 @@
+# Netlify Configuration for Salaam Masjid Campaign Forms
+
+[build]
+  # No build command needed - static HTML
+  publish = "."
+
+# Redirect rules
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+# Cache static assets
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# Custom 404 page (optional - falls back to index.html)
+[[redirects]]
+  from = "/404"
+  to = "/index.html"
+  status = 404
