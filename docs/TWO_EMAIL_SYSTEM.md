@@ -79,10 +79,9 @@ the Salaam Masjid extension!
 ```
 📝 Quick Steps to Create Your Campaign:
 
-1. Go to LaunchGood (link below)
+1. Click the button below to go to LaunchGood
 2. Set your goal to £[Goal]
-3. Add your story and photos
-4. Publish your campaign!
+3. Publish your campaign!
 ```
 
 **Call to Action**:
@@ -316,10 +315,10 @@ The completion link appears in:
 │ │ 📝 Quick Steps to Create Your       │ │
 │ │    Campaign:                        │ │
 │ │                                     │ │
-│ │ 1. Go to LaunchGood (link below)   │ │
+│ │ 1. Click the button below to       │ │
+│ │    go to LaunchGood                │ │
 │ │ 2. Set your goal to £500           │ │
-│ │ 3. Add your story and photos       │ │
-│ │ 4. Publish your campaign!          │ │
+│ │ 3. Publish your campaign!          │ │
 │ └─────────────────────────────────────┘ │
 │                                         │
 │     [Create My Campaign Now]            │
